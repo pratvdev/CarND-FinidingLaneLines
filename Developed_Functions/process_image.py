@@ -1,12 +1,30 @@
+# This function reads the images and prints a hightligted straight lines on the lane markings
 def process_image(image):
     gray_img = grayscale(image)# converting color image to gray scale     
        
     blur_gscale =gaussian_blur(gray_img, 5)#blurring gray scale image with gaussian blur   
     cannyOut = canny(blur_gscale, 75, 150) # finding edged using Canny edge algorithm    
 
-    imshape = image.shape 
-    vertices_left = np.array([[(100,imshape[0]) , (420,340) ,(450 , 340), (290 , imshape[0])]] , dtype=np.int32) # vertices for the left polygon we want to draw on the image
-    vertices_right = np.array([[(650 , imshape[0]), (520,340), (550,340), (940 , imshape[0])]] , dtype=np.int32) # vertices for the right polygon we want to draw on the image
+    imshape = image.shape
+    
+    mid_y = (0.6)*imshape[0] #top y corordinate for right and left polygons
+    
+    left_lbottomx = (0.1)*imshape[1] # left bottom x coordinate for left polygon
+    left_rbottomx = (0.3)*imshape[1] #right bottom x coordinate for left polygon
+    left_lmidx = (0.43)*imshape[1] # left mid x coordinate for left polygon
+    left_rmidx = (0.47)*imshape[1] # right mid x coordinate for left polygon    
+    
+    right_lbottomx = (0.7)*imshape[1] #left bottom x for right polygon
+    right_rbottomx = (0.98)*imshape[1] #right bottomx for right polygon
+    right_lmidx = (0.54)*imshape[1] # left mid x coordinate for right polygon
+    right_rmidx = (0.58)*imshape[1] # right mid x coordinate for right polygon
+    
+    
+    # vertices for the left polygon we want to draw on the image
+    vertices_left = np.array([[(left_lbottomx,imshape[0]) , (left_lmidx,mid_y) ,(left_rmidx , mid_y), (left_rbottomx , imshape[0])]] , dtype=np.int32)
+    # vertices for the right polygon we want to draw on the image
+    vertices_right = np.array([[(right_lbottomx , imshape[0]), (right_lmidx,mid_y), (right_rmidx,mid_y), (right_rbottomx , imshape[0])]] , dtype=np.int32)
+    
     masked_edges_left = region_of_interest(cannyOut, vertices_left)
     masked_edges_right = region_of_interest(cannyOut, vertices_right)
     
@@ -22,6 +40,8 @@ def process_image(image):
     
     left_x_array = []
     left_y_array = []
+    
+    # segregating x and y values from the hough lines using for loops
     for line in hough_lines_left:
         for x1,y1,x2,y2 in line:
             left_x_array.append(x1)
@@ -37,6 +57,9 @@ def process_image(image):
             right_x_array.append(x2)
             right_y_array.append(y1)
             right_y_array.append(y2)
+            
+    # Using numpy polyfit function along with poly1d to get the line equation y=mx+b.
+    # The euqation in left_line and right_line helps us draw straight line on the image for lane markings
     
     left_lines_coef = np.polyfit(left_x_array , left_y_array ,1)
     left_line = np.poly1d(left_lines_coef)
@@ -56,5 +79,4 @@ def process_image(image):
     
     # return type is the output image with highlighted lane markings
     return lines_edges
-
 

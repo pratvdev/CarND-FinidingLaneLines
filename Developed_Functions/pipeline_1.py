@@ -1,3 +1,5 @@
+#This function reads a color image and highlights lane markings in segments
+
 def pipeline(image):     
     gray_img = grayscale(image)# converting color image to gray scale     
        
