@@ -1,4 +1,5 @@
 # This function reads the images and prints a hightligted straight lines on the lane markings
+
 def process_image(image):
     gray_img = grayscale(image)# converting color image to gray scale     
        
